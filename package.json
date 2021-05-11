@@ -1,0 +1,21 @@
+{
+  "name": "sandeadry-scrapper",
+  "version": "1.0.0",
+  "description": "Scrape thousands of sanfoundry MCQs to JSON file",
+  "main": "index.js",
+  "repository": "https://github.com/smartclash/Sandeadry",
+  "author": "Karan Sanjeev <yo@alphaman.me>",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "@types/load-json-file": "^5.1.0",
+    "@types/node": "^15.0.2",
+    "@types/write-json-file": "^3.2.1",
+    "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "load-json-file": "^6.2.0",
+    "write-json-file": "^4.3.0"
+  }
+}
