@@ -1,5 +1,21 @@
 import { JSDOM } from 'jsdom'
 
+interface MCQ {
+    question,
+    options: string[],
+    answer: string,
+    explanation: string
+}
+
+interface MCQParserResult {
+    topic: string,
+    mcqs: MCQ[]
+}
+
+interface MCQParser {
+    (topic: string, mcqLink: string): Promise<MCQParserResult>
+}
+
 let optionsObject = []
 let answersObject = []
 let rawQuestionsObject = []
@@ -21,7 +37,7 @@ const optionsParser = (object: any[]): string[] => {
     return options
 }
 
-const MCQParser = async (topic: string, mcqLink: string) => {
+const MCQParser: MCQParser = async (topic, mcqLink) => {
     const $ = await JSDOM.fromURL(mcqLink)
     const document = $.window.document
 
@@ -67,7 +83,7 @@ const MCQParser = async (topic: string, mcqLink: string) => {
         .splice(0, rawQuestionsObject.length - 4)
         .filter((question: string) => !question.startsWith('a)'))
 
-    let constructedMCQ = { topic, mcqs: [] }
+    let constructedMCQ: MCQParserResult = { topic, mcqs: [] }
     questionsObject.forEach((question: string, key: number) => {
         constructedMCQ.mcqs.push({
             question,
