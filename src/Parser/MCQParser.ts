@@ -21,7 +21,7 @@ const optionsParser = (object: any[]): string[] => {
     return options
 }
 
-const MCQParser = async (genre: string, mcqLink: string = '') => {
+const MCQParser = async (topic: string, mcqLink: string) => {
     const $ = await JSDOM.fromURL(mcqLink)
     const document = $.window.document
 
@@ -67,7 +67,7 @@ const MCQParser = async (genre: string, mcqLink: string = '') => {
         .splice(0, rawQuestionsObject.length - 4)
         .filter((question: string) => !question.startsWith('a)'))
 
-    let constructedMCQ = { genre, mcqs: [] }
+    let constructedMCQ = { topic, mcqs: [] }
     questionsObject.forEach((question: string, key: number) => {
         constructedMCQ.mcqs.push({
             question,
