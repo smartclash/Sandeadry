@@ -1,0 +1,10 @@
+{
+    "include": [
+        "src/**/*.ts"
+    ],
+    "compileOnSave": true,
+    "compilerOptions": {
+        "outDir": "dist",
+        "target": "es5"
+    }
+}
