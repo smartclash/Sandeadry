@@ -1,4 +1,3 @@
-import { join } from 'path'
 import { JSDOM } from 'jsdom'
 
 let optionsObject = []
@@ -22,7 +21,7 @@ const optionsParser = (object: any[]): string[] => {
     return options
 }
 
-const MCQParser = async (mcqLink: string = '') => {
+const MCQParser = async (genre: string, mcqLink: string = '') => {
     const $ = await JSDOM.fromURL(mcqLink)
     const document = $.window.document
 
@@ -68,9 +67,9 @@ const MCQParser = async (mcqLink: string = '') => {
         .splice(0, rawQuestionsObject.length - 4)
         .filter((question: string) => !question.startsWith('a)'))
 
-    let constructedMCQ = []
+    let constructedMCQ = { genre, mcqs: [] }
     questionsObject.forEach((question: string, key: number) => {
-        constructedMCQ.push({
+        constructedMCQ.mcqs.push({
             question,
             options: optionsObject[key],
             answer: answersObject[key].answer,
@@ -78,7 +77,7 @@ const MCQParser = async (mcqLink: string = '') => {
         })
     })
 
-    console.log(constructedMCQ)
+    return constructedMCQ
 }
 
 export default MCQParser
