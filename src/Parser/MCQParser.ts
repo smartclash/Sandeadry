@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom'
 
-interface MCQ {
+export interface MCQ {
     question: string,
     options: string[],
     answer: string,

@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom'
 
-interface Topic {
+export interface Topic {
     name: string,
     link: string
 }

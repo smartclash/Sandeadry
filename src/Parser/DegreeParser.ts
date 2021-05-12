@@ -1,6 +1,6 @@
 import { JSDOM } from 'jsdom'
 
-interface Subject {
+export interface Subject {
     name: string,
     link: string
 }
