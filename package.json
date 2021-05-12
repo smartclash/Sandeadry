@@ -26,6 +26,7 @@
   "scripts": {
     "ts-watch": "tsc -w -p tsconfig.json",
     "ts-build": "tsc -p tsconfig.json",
-    "dev": "nodemon ."
+    "dev": "nodemon .",
+    "postinstall": "npm run ts-build"
   }
 }
