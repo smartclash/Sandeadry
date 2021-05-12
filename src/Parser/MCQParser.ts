@@ -1,7 +1,7 @@
 import { JSDOM } from 'jsdom'
 
 interface MCQ {
-    question,
+    question: string,
     options: string[],
     answer: string,
     explanation: string
