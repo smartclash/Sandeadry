@@ -20,19 +20,14 @@ const SubjectParser: SubjectParser = async (subject, link) => {
 
     let topicsObject: SubjectParserResult = { subject, topics: []}
 
-    document.querySelectorAll('div.sf-section > table > tbody > tr').forEach(tr => {
-        tr.childNodes.forEach(td => {
-            td.childNodes.forEach(li => {
-                li.childNodes.forEach(a => {
-                    topicsObject.topics.push({
-                        name: a.textContent,
-                        //@ts-ignore
-                        link: a.href
-                    })
-                })
+    document.querySelectorAll('div.sf-section > table > tbody > tr > td > li > a')
+        .forEach(element => {
+            topicsObject.topics.push({
+                name: element.textContent,
+                //@ts-ignore
+                link: element.href
             })
         })
-    })
 
     return topicsObject
 }
