@@ -7,12 +7,12 @@ import DegreeParser, { Subject } from './Parser/DegreeParser'
 const degreeName = 'Computer Science'
 const degreeLink = 'https://www.sanfoundry.com/computer-science-questions-answers/'
 
-const writeJson = async (degreeName: string, subject: Subject, topic: Topic, mcqs: MCQ[]) => {
+const writeJson = (degreeName: string, subject: Subject, topic: Topic, mcqs: MCQ[]) => {
     const p = parametreize
     const fileName = p(topic.name) + '.json'
-    const filePath = `data/${p(degreeName)}/${p(subject.name)}/${fileName}`
+    const filePath = `datas/${p(degreeName)}/${p(subject.name)}/${fileName}`
 
-    return await writeJsonFile(filePath, mcqs)
+    return writeJsonFile.sync(filePath, mcqs, { indent: 2 })
 }
 
 const handler = async () => {
@@ -25,9 +25,7 @@ const handler = async () => {
             const topicName = topics.name
             const mcqParser = await MCQParser(topicName, topics.link)
 
-            const writer = writeJson(degreeName, subjects, topics, mcqParser.mcqs)
-            writer.then(() => console.log('Scrapped', degreeName, subjectName, topicName))
-                .catch(() => console.error('Couldn\'t Scrape', degreeName, subjectName, topicName))
+            writeJson(degreeName, subjects, topics, mcqParser.mcqs)
         })
     })
 }
