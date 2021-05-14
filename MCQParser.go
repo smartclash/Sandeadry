@@ -5,6 +5,7 @@ import (
 	"github.com/gocolly/colly"
 	"log"
 	"strings"
+	"time"
 )
 
 type Answer struct {
@@ -54,11 +55,11 @@ func optionsParser(rawText []string) (options []string, exists bool) {
 }
 
 func mcqBuilder(answers []Answer, options [][]string, questions []string) (mcqs []MCQ) {
-	for i, question := range questions {
+	for i, answer := range answers {
 		mcqs = append(mcqs, MCQ{
-			Question: question,
+			Question: questions[i],
 			Options:  options[i],
-			Answer:   answers[i],
+			Answer:   answer,
 		})
 	}
 
@@ -71,6 +72,13 @@ func MCQParser(topic string, link string) (mcqs MCQParserResult, err error) {
 	var questions []string
 
 	c := colly.NewCollector()
+
+	if err = c.Limit(&colly.LimitRule{
+		DomainGlob:  "www.sanfoundry.com/*",
+		RandomDelay: 1 * time.Second,
+	}); err != nil {
+		return MCQParserResult{}, err
+	}
 
 	c.OnError(func(_ *colly.Response, err error) {
 		log.Println("Something went wrong:", err)
