@@ -25,7 +25,7 @@ func DegreeParser(link string) (subjects []Subject, err error) {
 	})
 
 	c.OnHTML("li", func(e *colly.HTMLElement) {
-		e.DOM.Find("div.entry-content table tbody tr td li a").Each(func (_ int, selection *goquery.Selection) {
+		e.DOM.Find("div.entry-content table tbody tr td li a").Each(func(_ int, selection *goquery.Selection) {
 			href, exists := selection.Attr("href")
 			if !exists {
 				return

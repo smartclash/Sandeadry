@@ -11,7 +11,7 @@ type Topic struct {
 	Link string
 }
 
-func SubjectParser (link string) (topics []Topic, err error) {
+func SubjectParser(link string) (topics []Topic, err error) {
 	c := colly.NewCollector()
 
 	c.OnError(func(_ *colly.Response, err error) {
@@ -23,7 +23,7 @@ func SubjectParser (link string) (topics []Topic, err error) {
 	})
 
 	c.OnHTML("li", func(e *colly.HTMLElement) {
-		e.DOM.Find("div.sf-section table tbody tr td li a").Each(func (_ int, selection *goquery.Selection) {
+		e.DOM.Find("div.sf-section table tbody tr td li a").Each(func(_ int, selection *goquery.Selection) {
 			if href, exists := selection.Attr("href"); exists {
 				topics = append(topics, Topic{
 					Name: selection.Text(),
