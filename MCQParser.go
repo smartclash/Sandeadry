@@ -18,7 +18,7 @@ type MCQ struct {
 	Answer
 }
 
-type ParserResult struct {
+type MCQParserResult struct {
 	Topic string
 	MCQs  []MCQ
 }
@@ -65,7 +65,7 @@ func mcqBuilder(answers []Answer, options [][]string, questions []string) (mcqs 
 	return
 }
 
-func MCQParser(topic string, link string) (mcqs ParserResult, err error) {
+func MCQParser(topic string, link string) (mcqs MCQParserResult, err error) {
 	var answers []Answer
 	var options [][]string
 	var questions []string
@@ -125,7 +125,7 @@ func MCQParser(topic string, link string) (mcqs ParserResult, err error) {
 	err = c.Visit(link)
 
 	questions = questions[:len(questions)-2]
-	mcqs = ParserResult{
+	mcqs = MCQParserResult{
 		Topic: topic,
 		MCQs:  mcqBuilder(answers, options, questions),
 	}

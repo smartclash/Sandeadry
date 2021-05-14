@@ -13,7 +13,12 @@ type Subject struct {
 	Link string
 }
 
-func DegreeParser(link string) (subjects []Subject, err error) {
+type DegreeParserResult struct {
+	Degree   string
+	Subjects []Subject
+}
+
+func DegreeParser(link string) (subjects DegreeParserResult, err error) {
 	c := colly.NewCollector()
 
 	c.OnError(func(_ *colly.Response, err error) {
@@ -40,11 +45,15 @@ func DegreeParser(link string) (subjects []Subject, err error) {
 				return
 			}
 
-			subjects = append(subjects, Subject{
+			subjects.Subjects = append(subjects.Subjects, Subject{
 				Name: selection.Text(),
 				Link: href,
 			})
 		})
+	})
+
+	c.OnHTML("title", func(element *colly.HTMLElement) {
+		subjects.Degree = strings.ReplaceAll(element.Text, " Questions and Answers - Sanfoundry", "")
 	})
 
 	c.OnScraped(func(r *colly.Response) {
