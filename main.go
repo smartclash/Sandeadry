@@ -41,11 +41,7 @@ func main() {
 		}
 
 		for _, topic := range subjectData.Topics {
-			mcqData, err := MCQParser(topic.Name, topic.Link)
-			if err != nil {
-				fmt.Println("Couldn't visit mcq link")
-				return
-			}
+			mcqData := MCQParser(topic.Name, topic.Link)
 
 			degreeName := Parameterize(degreeData.Degree)
 			subjectName := Parameterize(subject.Name)
