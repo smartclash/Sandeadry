@@ -2,10 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func saveDataToJson(degree string, subject string, topic string, mcqs []MCQ) (err error) {
@@ -27,7 +30,28 @@ func saveDataToJson(degree string, subject string, topic string, mcqs []MCQ) (er
 }
 
 func main() {
-	degreeData, err := DegreeParser("https://www.sanfoundry.com/computer-science-questions-answers/")
+	link := flag.String("l", "", "Link to the degree you want to parse MCQs")
+	flag.Parse()
+
+	if *link == "" {
+		flag.PrintDefaults()
+		return
+	}
+
+	parse, err := url.Parse(*link)
+	if err != nil {
+		fmt.Println("Please enter a proper link")
+		flag.PrintDefaults()
+		return
+	}
+
+	if !strings.EqualFold(parse.Hostname(), "www.sanfoundry.com") {
+		fmt.Println("Enter only sanfoundry links")
+		flag.PrintDefaults()
+		return
+	}
+
+	degreeData, err := DegreeParser(*link)
 	if err != nil {
 		fmt.Println("Couldn't visit degree link")
 		return
