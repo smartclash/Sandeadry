@@ -21,14 +21,6 @@ type DegreeParserResult struct {
 func DegreeParser(link string) (subjects DegreeParserResult, err error) {
 	c := colly.NewCollector()
 
-	c.OnError(func(_ *colly.Response, err error) {
-		fmt.Println("Something went wrong:", err)
-	})
-
-	c.OnResponse(func(r *colly.Response) {
-		fmt.Println("Visited", r.Request.URL)
-	})
-
 	c.OnHTML("li", func(e *colly.HTMLElement) {
 		e.DOM.Find("div.entry-content table tbody tr td li a").Each(func(_ int, selection *goquery.Selection) {
 			href, exists := selection.Attr("href")
@@ -57,7 +49,7 @@ func DegreeParser(link string) (subjects DegreeParserResult, err error) {
 	})
 
 	c.OnScraped(func(r *colly.Response) {
-		fmt.Println("Finished", r.Request.URL)
+		fmt.Println("Degree Scrapped", r.Request.URL)
 	})
 
 	err = c.Visit(link)

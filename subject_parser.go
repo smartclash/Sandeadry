@@ -20,14 +20,6 @@ func SubjectParser(degree string, link string) (topics SubjectParserResult, err 
 	c := colly.NewCollector()
 	topics.Degree = degree
 
-	c.OnError(func(_ *colly.Response, err error) {
-		fmt.Println("Something went wrong:", err)
-	})
-
-	c.OnResponse(func(r *colly.Response) {
-		fmt.Println("Visited", r.Request.URL)
-	})
-
 	c.OnHTML("li", func(e *colly.HTMLElement) {
 		e.DOM.Find("div.sf-section table tbody tr td li a").Each(func(_ int, selection *goquery.Selection) {
 			if href, exists := selection.Attr("href"); exists {
@@ -40,7 +32,7 @@ func SubjectParser(degree string, link string) (topics SubjectParserResult, err 
 	})
 
 	c.OnScraped(func(r *colly.Response) {
-		fmt.Println("Finished", r.Request.URL)
+		fmt.Println("Subject Scrapped", r.Request.URL)
 	})
 
 	err = c.Visit(link)
