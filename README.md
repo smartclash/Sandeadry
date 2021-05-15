@@ -12,56 +12,36 @@ After you run the program, it will save all the MCQs in following format
 └── datas
   └── degree_name
     ├── subject_name_1
-    │ ├── topic_name_1.json
-    │ └── topic_name_2.json
+    │  ├── topic_name_1.json
+    │  └── topic_name_2.json
     └── subject_name_2
       ├── topic_name_1.json
       └── topic_name_2.json
 ```
 
-## Requirements
-
-This is a nodejs project, you need the following
-
-- Node [(download)](https://nodejs.org/en/download/)
-- Yarn [(download)](https://yarnpkg.com/getting-started/install)
-
-## Installation
-
-Everything is done via a terminal. So make sure to open yours.
-
-1. Clone this project
-```bash
-git clone https://github.com/smartclash/Sandeadry.git
-```
-
-2. Get inside and install dependencies
-```bash
-yarn install
-```
-
-That's it. You've done the installation
-
 ## Running
 
-Open the file `Index.ts` inside `Sandeadry/src` in your favorite text editor and replace `degreeName` with the name of the degree you're trying to scrape the MCQs off and replace `degreeLink` with the link to degree index page
+1. Go to [releases page](https://github.com/smartclash/Sandeadry/releases) and download the executable file for your operating system.
+    > Note: MacOS build is not available. I am broke, and I don't own a Mac
 
-Again in terminal, run. Make sure you're inside the project directory
-```bash
-yarn ts-build
-```
+2. Rename the file into `sandeadry` and run the following. You can replace the link with a link to any other degree
+    ```bash
+    ./sandeadry -l https://www.sanfoundry.com/computer-science-questions-answers/
+    ```
 
-Now to start scrapping, just run
-```bash
-node .
-```
+## Contributing
+
+Project is based on [Golang](https://golang.org/). Clone the repo, and you can start working on it. If you have any problem, make an issue, and I'll get back to you
+
+> Project was first built on [NodeJS (TypeScript)](https://github.com/smartclash/Sandeadry/tree/nodejs). It since has been re-written into golang.
 
 ## Disclaimer
 
 It's a fun project. I did it in my free time. Wanted to test out my knowledge and here we are.
 
-This project is kinda buggy. Does the work 90% of the time but messes up the questions sometimes. If you can find the issue, fixes and PRs are highly appreciated.
+This project will never get a stable release and will always be a beta software. If you find any issue, please file that in [issue page](https://github.com/smartclash/Sandeadry/issues).
+I'll appreciate it more if you can fix bugs and send PRs on my way. Do checkout [Contributing](#Contributing)
 
 ## To Sanfoundry Folks
 
-Just let me know and I'll remove this code. Don't DMCA lol, I am done with DMCA requests and can't handle anymore.
+Just let me know, and I'll remove this code. Don't DMCA lol, I am done with DMCA requests and can't handle anymore.
