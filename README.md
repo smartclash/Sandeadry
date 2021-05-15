@@ -19,6 +19,46 @@ After you run the program, it will save all the MCQs in following format
       └── topic_name_2.json
 ```
 
+## Example file
+
+```json
+[
+    {
+        "Question": "1. The self organizing list improves the efficiency of _______",
+        "Options": [
+            "binary search",
+            "jump search",
+            "sublist search",
+            "linear search"
+        ],
+        "Answer": "d",
+        "Explanation": "Linear search in a linked list has time complexity O(n). To improve the efficiency of the linear search the self organizing list is used. A self-organizing list improves the efficiency of linear search by moving more frequently accessed elements towards the head of the list."
+    },
+    {
+        "Question": "2. Which of the following is true about the Move-To-Front Method for rearranging nodes?",
+        "Options": [
+            "node with highest access count is moved to head of the list",
+            "requires extra storage",
+            "may over-reward infrequently accessed nodes",
+            "requires a counter for each node"
+        ],
+        "Answer": "c",
+        "Explanation": "In Move-To-front Method the element which is searched is moved to the head of the list. And if a node is searched even once, it is moved to the head of the list and given maximum priority even if it is not going to be accessed frequently in the future. Such a situation is referred to as over-rewarding."
+    },
+    {
+        "Question": "3. What technique is used in Transpose method?",
+        "Options": [
+            "searched node is swapped with its predecessor",
+            "node with highest access count is moved to head of the list",
+            "searched node is swapped with the head of list",
+            "searched nodes are rearranged based on their proximity to the head node"
+        ],
+        "Answer": "a",
+        "Explanation": "In Transpose method, if any node is searched, it is swapped with the node in front unless it is the head of the list. So, in Transpose method searched node is swapped with its predecessor."
+    }
+]
+```
+
 ## Running
 
 1. Go to [releases page](https://github.com/smartclash/Sandeadry/releases) and download the executable file for your operating system.
