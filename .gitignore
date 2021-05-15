@@ -2,3 +2,5 @@ node_modules/
 dist/
 *.html
 datas/
+.idea/
+sanfoundry_cache/
