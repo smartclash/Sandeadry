@@ -12,11 +12,15 @@ func main() {
 	link := flag.String("l", "", "Link to the degree you want to parse MCQs")
 	flag.Parse()
 
-	if *link == "" {
-		flag.PrintDefaults()
+	if *link != "" {
+		invokeParser(link)
 		return
 	}
 
+	flag.PrintDefaults()
+}
+
+func invokeParser(link *string) {
 	parse, err := url.Parse(*link)
 	if err != nil {
 		fmt.Println("Please enter a proper link")

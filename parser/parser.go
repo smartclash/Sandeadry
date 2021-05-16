@@ -2,7 +2,6 @@ package parser
 
 import (
 	"fmt"
-	"github.com/smartclash/Sandeadry/utils"
 )
 
 func Parser(link string) {
@@ -22,11 +21,11 @@ func Parser(link string) {
 		for _, topic := range subjectData.Topics {
 			mcqData := MCQParser(topic.Name, topic.Link)
 
-			degreeName := utils.Parameterize(degreeData.Degree)
-			subjectName := utils.Parameterize(subject.Name)
-			topicName := utils.Parameterize(topic.Name)
+			degreeName := Parameterize(degreeData.Degree)
+			subjectName := Parameterize(subject.Name)
+			topicName := Parameterize(topic.Name)
 
-			if err := utils.SaveDataToJson(degreeName, subjectName, topicName, mcqData.MCQs); err != nil {
+			if err := SaveDataToJson(degreeName, subjectName, topicName, mcqData.MCQs); err != nil {
 				fmt.Println("Couldn't save mcq data")
 			}
 		}

@@ -1,8 +1,7 @@
-package utils
+package parser
 
 import (
 	"encoding/json"
-	"github.com/smartclash/Sandeadry/parser"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -16,7 +15,7 @@ func Parameterize(s string) (newString string) {
 	return
 }
 
-func SaveDataToJson(degree string, subject string, topic string, mcqs []parser.MCQ) (err error) {
+func SaveDataToJson(degree string, subject string, topic string, mcqs []MCQ) (err error) {
 	thePath := filepath.Join("datas", degree, subject)
 	err = os.MkdirAll(thePath, os.ModePerm)
 
