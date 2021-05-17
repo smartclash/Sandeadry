@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
+	"github.com/smartclash/Sandeadry/indexer"
 	"github.com/smartclash/Sandeadry/parser"
 	"github.com/smartclash/Sandeadry/storage"
 	"github.com/thatisuday/commando"
@@ -10,6 +12,11 @@ import (
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Println("Couldn't load .env file")
+	}
+
 	commando.
 		SetExecutableName("Sandeadry").
 		SetVersion("v0.2.0").
@@ -35,6 +42,16 @@ func main() {
 			invokeStorage(database.(string))
 		})
 
+	commando.
+		Register("index").
+		SetDescription("Index all subjects, topics and MCQs scrapped into meilisearch").
+		SetShortDescription("Index data into meilisearch").
+		AddFlag("database,d", "Custom name for the database", commando.String, "sandeadry").
+		SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
+			database := flags["database"].Value
+			invokeIndexer(database.(string))
+		})
+
 	commando.Parse(nil)
 }
 
@@ -57,6 +74,14 @@ func invokeStorage(database string) {
 	err := storage.Init(database)
 	if err != nil {
 		fmt.Println("Couldn't save the files into database", err)
+		return
+	}
+}
+
+func invokeIndexer(database string) {
+	err := indexer.Init(database)
+	if err != nil {
+		fmt.Println("Couldn't index files into meilisearch", err)
 		return
 	}
 }

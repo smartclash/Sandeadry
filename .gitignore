@@ -5,3 +5,4 @@ datas/
 .idea/
 sanfoundry_cache/
 *.sqlite
+.env
