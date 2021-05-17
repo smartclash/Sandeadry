@@ -4,3 +4,4 @@ dist/
 datas/
 .idea/
 sanfoundry_cache/
+*.sqlite

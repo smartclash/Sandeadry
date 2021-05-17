@@ -1,38 +1,62 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"github.com/smartclash/Sandeadry/parser"
+	"github.com/smartclash/Sandeadry/storage"
+	"github.com/thatisuday/commando"
 	"net/url"
 	"strings"
 )
 
 func main() {
-	link := flag.String("l", "", "Link to the degree you want to parse MCQs")
-	flag.Parse()
+	commando.
+		SetExecutableName("Sandeadry").
+		SetVersion("v0.2.0").
+		SetDescription("Scrape sanfoundry MCQs, topics and subjects. Save it in a JSON file or a sqlite database")
 
-	if *link != "" {
-		invokeParser(link)
-		return
-	}
+	commando.
+		Register("scrape").
+		SetDescription("Scrape sanfoundry website").
+		SetShortDescription("Scrape sanfoundry website").
+		AddArgument("link", "Link to the degree you want to scrape subjects, topics and MCQs", "").
+		SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
+			link := args["link"].Value
+			invokeParser(&link)
+		})
 
-	flag.PrintDefaults()
+	commando.
+		Register("save").
+		SetDescription("Save all subjects, topics and MCQs scrapped into an sqlite database").
+		SetShortDescription("Save scrapped data into sqlite DB").
+		AddFlag("database,d", "Custom name for the database", commando.String, "sandeadry").
+		SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
+			database := flags["database"].Value
+			invokeStorage(database.(string))
+		})
+
+	commando.Parse(nil)
 }
 
 func invokeParser(link *string) {
 	parse, err := url.Parse(*link)
 	if err != nil {
 		fmt.Println("Please enter a proper link")
-		flag.PrintDefaults()
 		return
 	}
 
 	if !strings.EqualFold(parse.Hostname(), "www.sanfoundry.com") {
 		fmt.Println("Enter only sanfoundry links")
-		flag.PrintDefaults()
 		return
 	}
 
 	parser.Parser(*link)
+}
+
+func invokeStorage(database string) {
+	err := storage.Init(database)
+	if err != nil {
+		fmt.Println("Couldn't save the files into database", err)
+		return
+	}
 }
