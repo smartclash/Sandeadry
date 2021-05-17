@@ -31,7 +31,7 @@ type MCQ struct {
 	OptionOne   string
 	OptionTwo   string
 	OptionThree string
-	OptionFOur  string
+	OptionFour  string
 	TopicID     int
 	Topic       Topic
 }
