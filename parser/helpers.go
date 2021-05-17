@@ -11,6 +11,14 @@ import (
 func Parameterize(s string) (newString string) {
 	newString = strings.ReplaceAll(s, " ", "_")
 	newString = strings.ReplaceAll(newString, "/", "_OR_")
+	newString = strings.ToLower(newString)
+
+	return
+}
+
+func Humanize(s string) (newString string) {
+	newString = strings.ReplaceAll(s, "_", " ")
+	newString = strings.ReplaceAll(newString, "_OR_", "/")
 
 	return
 }
