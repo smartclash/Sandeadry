@@ -17,9 +17,10 @@ type Subject struct {
 
 type Topic struct {
 	gorm.Model
-	Name    string
-	Subject Subject
-	MCQs    []MCQ
+	Name      string
+	SubjectID int
+	Subject   Subject
+	MCQs      []MCQ
 }
 
 type MCQ struct {
@@ -31,5 +32,6 @@ type MCQ struct {
 	OptionTwo   string
 	OptionThree string
 	OptionFOur  string
+	TopicID     int
 	Topic       Topic
 }
