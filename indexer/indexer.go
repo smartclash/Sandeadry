@@ -17,7 +17,7 @@ type MeiliMCQ struct {
 	OptionTwo   string
 	OptionThree string
 	OptionFour  string
-	topic       string
+	Topic       string
 	Subject     string
 	Degrees     []string
 }
@@ -33,6 +33,19 @@ func Init(database string) (err error) {
 	}
 
 	err = IndexDocuments(db, meili)
+	if err != nil {
+		return err
+	}
+
+	_, err = meili.Settings("mcqs").UpdateAttributesForFaceting([]string{"Degrees"})
+	if err != nil {
+		return err
+	}
+
+	_, err = meili.Settings("mcqs").UpdateSearchableAttributes([]string{
+		"Question", "Explanation", "OptionOne", "OptionTwo",
+		"OptionThree", "OptionFour", "Answer", "Topic",
+	})
 	if err != nil {
 		return err
 	}
@@ -65,7 +78,7 @@ func IndexDocuments(db *gorm.DB, meili meilisearch.ClientInterface) (err error) 
 					OptionTwo:   mcq.OptionTwo,
 					OptionThree: mcq.OptionThree,
 					OptionFour:  mcq.OptionFour,
-					topic:       mcq.Topic.Name,
+					Topic:       mcq.Topic.Name,
 					Subject:     mcq.Topic.Subject.Name,
 					Degrees:     theDegrees,
 				})
