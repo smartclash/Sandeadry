@@ -37,14 +37,16 @@ func Init(database string) (err error) {
 		return err
 	}
 
-	_, err = meili.Settings("mcqs").UpdateAttributesForFaceting([]string{"Degrees"})
+	_, err = meili.Settings("mcqs").UpdateAttributesForFaceting([]string{
+		"Degrees", "Subject", "Topic",
+	})
 	if err != nil {
 		return err
 	}
 
 	_, err = meili.Settings("mcqs").UpdateSearchableAttributes([]string{
 		"Question", "Explanation", "OptionOne", "OptionTwo",
-		"OptionThree", "OptionFour", "Answer", "Topic",
+		"OptionThree", "OptionFour", "Answer",
 	})
 	if err != nil {
 		return err
