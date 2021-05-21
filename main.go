@@ -81,7 +81,7 @@ func invokeStorage(database string) {
 func invokeIndexer(database string) {
 	err := indexer.Init(database)
 	if err != nil {
-		fmt.Println("Couldn't index files into meilisearch", err)
+		fmt.Println("Couldn't index files into meilisearch")
 		return
 	}
 }
