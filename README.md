@@ -1,4 +1,4 @@
-# Sandeadry (san-dead-ry)
+# [Sandeadry (san-dead-ry)](https://choicez.alphaman.me/)
 ***A sanfoundry scrapper that does the heavylifting***
 
 Just pass the link to Degree you want to scrape. Program will automatically create folders with subject names and save all the MCQs of that particular subject as a `json` file. Each `json` file belongs to a particular topic.
@@ -61,12 +61,37 @@ After you run the program, it will save all the MCQs in following format
 
 ## Running
 
-1. Go to [releases page](https://github.com/smartclash/Sandeadry/releases) and download the executable file for your operating system.
+Go to [releases page](https://github.com/smartclash/Sandeadry/releases) and download the executable file for your operating system.
     > Note: MacOS build is not available. I am broke, and I don't own a Mac
 
-2. Rename the file into `sandeadry` and run the following. You can replace the link with a link to any other degree
+
+### To scrape Subjects, topics and it's MCQs
+
+Rename the file into `sandeadry` and run the following. You can replace the link with a link to any other degree
+```bash
+./sandeadry scrape https://www.sanfoundry.com/computer-science-questions-answers/
+```
+
+### To save the data scrapped
+
+All the data scrapped will be cleaned and saved into an `sqlite` database for further querying and/or manipulation.
+
+```bash
+./sandeadry save
+```
+
+### Index MCQs to Meilisearch
+
+[Meilisearch](https://www.meilisearch.com/) is a search engine that provides results as you type. Make sure to run `save` command first before trying to index. 
+
+1. Copy `.env.example` into `.env`. And enter the correct meilisearch instance credentials
     ```bash
-    ./sandeadry -l https://www.sanfoundry.com/computer-science-questions-answers/
+    cp .env.example .env
+    ```
+
+2. Run the command and wait ;)
+    ```bash
+    ./sandeadry index
     ```
 
 ## Contributing
