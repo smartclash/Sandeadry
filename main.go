@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
@@ -25,12 +26,17 @@ type Topic struct {
 }
 
 func main() {
+	var theURL string
+
+	flag.StringVar(&theURL, "u", "", "Specify the degree url to parse")
+
+	flag.Parse()
 	c.SetRequestTimeout(time.Minute * 2)
 
 	subRes := make(chan Subject, 10)
 	topicRes := make(chan Topic, 1000)
 
-	go degreeParser(subRes)
+	go degreeParser(theURL, subRes)
 
 	for sub := range subRes {
 		go subjectParser(sub, topicRes)
@@ -43,7 +49,7 @@ func main() {
 	c.Wait()
 }
 
-func degreeParser(subRes chan<- Subject) {
+func degreeParser(theURL string, subRes chan<- Subject) {
 	c.OnHTML("li", func(e *colly.HTMLElement) {
 		e.DOM.Find("div.entry-content table tbody tr td li a").Each(func(_ int, selection *goquery.Selection) {
 			href, exists := selection.Attr("href")
@@ -71,7 +77,7 @@ func degreeParser(subRes chan<- Subject) {
 		fmt.Println(strings.ReplaceAll(element.Text, " Questions and Answers - Sanfoundry", ""))
 	})
 
-	if err := c.Visit("https://www.sanfoundry.com/chemical-engineering-questions-answers/"); err != nil {
+	if err := c.Visit(theURL); err != nil {
 		fmt.Println("Couldn't visit the website", err.Error())
 	}
 }
