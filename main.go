@@ -2,86 +2,93 @@ package main
 
 import (
 	"fmt"
-	"github.com/joho/godotenv"
-	"github.com/smartclash/Sandeadry/indexer"
-	"github.com/smartclash/Sandeadry/parser"
-	"github.com/smartclash/Sandeadry/storage"
-	"github.com/thatisuday/commando"
+	"github.com/PuerkitoBio/goquery"
+	"github.com/gocolly/colly"
 	"net/url"
 	"strings"
+	"time"
 )
 
+var c = colly.NewCollector(
+	colly.AllowedDomains("sanfoundry.com", "www.sanfoundry.com"),
+	colly.AllowURLRevisit(),
+	colly.Async(true))
+
+type Subject struct {
+	Name string
+	Link string
+}
+
+type Topic struct {
+	Name string
+	Link string
+}
+
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Println("Couldn't load .env file")
+	c.SetRequestTimeout(time.Minute * 2)
+
+	subRes := make(chan Subject, 10)
+	topicRes := make(chan Topic, 1000)
+
+	go degreeParser(subRes)
+
+	for sub := range subRes {
+		go subjectParser(sub, topicRes)
 	}
 
-	commando.
-		SetExecutableName("Sandeadry").
-		SetVersion("v0.2.0").
-		SetDescription("Scrape sanfoundry MCQs, topics and subjects. Save it in a JSON file or a sqlite database")
+	for topic := range topicRes {
+		fmt.Println("Topic parsed", topic.Name)
+	}
 
-	commando.
-		Register("scrape").
-		SetDescription("Scrape sanfoundry website").
-		SetShortDescription("Scrape sanfoundry website").
-		AddArgument("link", "Link to the degree you want to scrape subjects, topics and MCQs", "").
-		SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
-			link := args["link"].Value
-			invokeParser(&link)
-		})
-
-	commando.
-		Register("save").
-		SetDescription("Save all subjects, topics and MCQs scrapped into an sqlite database").
-		SetShortDescription("Save scrapped data into sqlite DB").
-		AddFlag("database,d", "Custom name for the database", commando.String, "sandeadry").
-		SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
-			database := flags["database"].Value
-			invokeStorage(database.(string))
-		})
-
-	commando.
-		Register("index").
-		SetDescription("Index all subjects, topics and MCQs scrapped into meilisearch").
-		SetShortDescription("Index data into meilisearch").
-		AddFlag("database,d", "Custom name for the database", commando.String, "sandeadry").
-		SetAction(func(args map[string]commando.ArgValue, flags map[string]commando.FlagValue) {
-			database := flags["database"].Value
-			invokeIndexer(database.(string))
-		})
-
-	commando.Parse(nil)
+	c.Wait()
 }
 
-func invokeParser(link *string) {
-	parse, err := url.Parse(*link)
-	if err != nil {
-		fmt.Println("Please enter a proper link")
-		return
-	}
+func degreeParser(subRes chan<- Subject) {
+	c.OnHTML("li", func(e *colly.HTMLElement) {
+		e.DOM.Find("div.entry-content table tbody tr td li a").Each(func(_ int, selection *goquery.Selection) {
+			href, exists := selection.Attr("href")
+			if !exists {
+				return
+			}
 
-	if !strings.EqualFold(parse.Hostname(), "www.sanfoundry.com") {
-		fmt.Println("Enter only sanfoundry links")
-		return
-	}
+			link, err := url.Parse(href)
+			if err != nil {
+				return
+			}
 
-	parser.Parser(*link)
-}
+			if strings.EqualFold(link.Host, "rank.sanfoundry.com") {
+				return
+			}
 
-func invokeStorage(database string) {
-	err := storage.Init(database)
-	if err != nil {
-		fmt.Println("Couldn't save the files into database", err)
-		return
+			subRes <- Subject{
+				Name: selection.Text(),
+				Link: href,
+			}
+		})
+	})
+
+	c.OnHTML("title", func(element *colly.HTMLElement) {
+		fmt.Println(strings.ReplaceAll(element.Text, " Questions and Answers - Sanfoundry", ""))
+	})
+
+	if err := c.Visit("https://www.sanfoundry.com/chemical-engineering-questions-answers/"); err != nil {
+		fmt.Println("Couldn't visit the website", err.Error())
 	}
 }
 
-func invokeIndexer(database string) {
-	err := indexer.Init(database)
-	if err != nil {
-		fmt.Println("Couldn't index files into meilisearch")
-		return
+func subjectParser(sub Subject, topicRes chan<- Topic) {
+	c.OnHTML("li", func(e *colly.HTMLElement) {
+		e.DOM.Find("div.sf-section table tbody tr td li a").Each(func(_ int, selection *goquery.Selection) {
+			if href, exists := selection.Attr("href"); exists {
+				topicRes <- Topic{
+					Name: selection.Text(),
+					Link: href,
+				}
+			}
+		})
+	})
+
+	if err := c.Visit(sub.Link); err != nil {
+		fmt.Println("Couldn't visit the website", err.Error())
 	}
 }
