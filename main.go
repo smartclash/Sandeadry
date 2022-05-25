@@ -46,25 +46,32 @@ func main() {
 	flag.Parse()
 	c.SetRequestTimeout(time.Minute * 2)
 
+	if len(theURL) <= 0 {
+		fmt.Println("Please enter a degree link")
+		return
+	}
+
 	subRes := make(chan Subject)
-	topicRes := make(chan Topic)
+	topicRes := make(chan Topic, 10)
 	mcqRes := make(chan []MCQ)
 
 	go degreeParser(theURL, subRes)
+	go subjectWorker(subRes, topicRes)
+	go topicWorker(topicRes, mcqRes)
 
+	c.Wait()
+}
+
+func subjectWorker(subRes chan Subject, topicRes chan Topic) {
 	for sub := range subRes {
 		go subjectParser(sub, topicRes)
 	}
+}
 
+func topicWorker(topicRes chan Topic, mcqRes chan []MCQ) {
 	for topic := range topicRes {
 		go topicParser(topic, mcqRes)
 	}
-
-	for mcqs := range mcqRes {
-		fmt.Println(mcqs)
-	}
-
-	c.Wait()
 }
 
 func degreeParser(theURL string, subRes chan<- Subject) {
@@ -96,33 +103,35 @@ func degreeParser(theURL string, subRes chan<- Subject) {
 	})
 
 	if err := c.Visit(theURL); err != nil {
-		fmt.Println("Couldn't visit the website", err.Error())
+		fmt.Println("Couldn't visit degree site", err.Error())
 	}
 }
 
 func subjectParser(sub Subject, topicRes chan<- Topic) {
-	c.OnHTML("li", func(e *colly.HTMLElement) {
-		e.DOM.Find("div.sf-section table tbody tr td li a").Each(func(_ int, selection *goquery.Selection) {
-			if href, exists := selection.Attr("href"); exists {
-				topicRes <- Topic{
-					Name: selection.Text(),
-					Link: href,
-				}
+	c.OnHTML("div.sf-section", func(e *colly.HTMLElement) {
+		e.ForEach("div.sf-section table tbody tr td li a", func(bruh int, selection *colly.HTMLElement) {
+			href := selection.Attr("href")
+			topic := Topic{
+				Name: selection.Text,
+				Link: href,
 			}
+
+			fmt.Println(topic)
+
+			topicRes <- topic
 		})
 	})
 
-	c.OnHTML("title", func(element *colly.HTMLElement) {
-		fmt.Println("Scrapped subject", element.Text, sub.Link)
+	c.OnScraped(func(res *colly.Response) {
+		fmt.Println("Scrapped subject", sub.Link)
 	})
 
 	if err := c.Visit(sub.Link); err != nil {
-		fmt.Println("Couldn't visit the website", err.Error())
+		fmt.Println("Couldn't visit subject site", err.Error())
 	}
 }
 
 func topicParser(topic Topic, mcqRes chan<- []MCQ) {
-	fmt.Println("inside topic parser", topic.Name)
 	offset := 0
 	var mcqs []MCQ
 	var answers []Answer
@@ -130,6 +139,10 @@ func topicParser(topic Topic, mcqRes chan<- []MCQ) {
 
 	c.OnHTML("div.entry-content", func(e *colly.HTMLElement) {
 		e.ForEach("div.collapseomatic_content", func(_ int, ans *colly.HTMLElement) {
+			if len(answers) <= 0 {
+				return
+			}
+
 			answerRaw := strings.Split(ans.Text, "\n")
 			answer := strings.ReplaceAll(answerRaw[0], "Answer: ", "")
 			explanation := strings.ReplaceAll(answerRaw[1], "Explanation: ", "")
@@ -159,6 +172,10 @@ func topicParser(topic Topic, mcqRes chan<- []MCQ) {
 			mcq := MCQ{}
 			starters := []string{"a)", "b)", "c)", "d)"}
 			for _, line := range theText {
+				if len(line) <= 1 {
+					return
+				}
+
 				if lo.Contains(starters, line[0:2]) {
 					mcq.Options = append(mcq.Options, line)
 				} else {
@@ -187,6 +204,6 @@ func topicParser(topic Topic, mcqRes chan<- []MCQ) {
 	})
 
 	if err := c.Visit(topic.Link); err != nil {
-		fmt.Println("Couldn't visit the website", err.Error())
+		fmt.Println("Couldn't visit topic site", err.Error())
 	}
 }
