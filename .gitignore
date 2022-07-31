@@ -7,3 +7,4 @@ sanfoundry_cache/
 *.sqlite
 .env
 Sandeadry
+out.json
