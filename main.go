@@ -15,7 +15,7 @@ func main() {
 		StartURLs:          []string{"https://www.sanfoundry.com/computer-science-questions-answers/"},
 		ParseFunc:          subjectParse,
 		Exporters:          []export.Exporter{&export.JSON{}},
-		ConcurrentRequests: 10,
+		ConcurrentRequests: 100,
 	}).Start()
 }
 
