@@ -1,29 +1,38 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
+	"log"
+	"net/http"
+	_ "net/http/pprof"
+	"net/url"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
 	"github.com/samber/lo"
-	"net/url"
-	"strings"
-	"time"
 )
 
 var c = colly.NewCollector(
 	colly.AllowedDomains("sanfoundry.com", "www.sanfoundry.com"),
 	colly.Async(true),
-	colly.CacheDir("./sanfoundry_cache"))
+	colly.CacheDir("./sanfoundry_cache"),
+)
 
 type Subject struct {
-	Name string
-	Link string
+	Name       string
+	Link       string
+	DegreeName string
 }
 
 type Topic struct {
-	Name string
-	Link string
+	Name        string
+	Link        string
+	SubjectName string
 }
 
 type Answer struct {
@@ -36,9 +45,12 @@ type MCQ struct {
 	Options  []string
 
 	Answer
+	TopicName string
 }
 
 func main() {
+	go func() { log.Fatal(http.ListenAndServe(":4000", nil)) }()
+
 	var theURL string
 
 	flag.StringVar(&theURL, "u", "", "Specify the degree url to parse")
@@ -51,13 +63,34 @@ func main() {
 		return
 	}
 
-	subRes := make(chan Subject)
+	subRes := make(chan Subject, 10)
 	topicRes := make(chan Topic, 10)
-	mcqRes := make(chan []MCQ)
+	mcqRes := make(chan []MCQ, 10)
 
 	go degreeParser(theURL, subRes)
 	go subjectWorker(subRes, topicRes)
 	go topicWorker(topicRes, mcqRes)
+
+	file, err := os.Create("lmao/mcq.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer file.Close()
+
+	tf, err := os.OpenFile("lmao/mcq.json", os.O_APPEND|os.O_WRONLY, 0777)
+	if err != nil {
+		fmt.Print("cry")
+	}
+	defer tf.Close()
+
+	for mcqs := range mcqRes {
+		res, err := json.Marshal(mcqs)
+		if err != nil {
+			fmt.Println("bruh")
+		}
+
+		tf.Write(res)
+	}
 
 	c.Wait()
 }
@@ -92,6 +125,7 @@ func degreeParser(theURL string, subRes chan<- Subject) {
 			}
 
 			subRes <- Subject{
+				//DegreeName:
 				Name: selection.Text(),
 				Link: href,
 			}
@@ -99,11 +133,11 @@ func degreeParser(theURL string, subRes chan<- Subject) {
 	})
 
 	c.OnHTML("title", func(element *colly.HTMLElement) {
-		fmt.Println("Scrapped degree", element.Text)
+		//fmt.Println("Scrapped subject", element.Text)
 	})
 
 	if err := c.Visit(theURL); err != nil {
-		fmt.Println("Couldn't visit degree site", err.Error())
+		//fmt.Println("Couldn't visit degree site", err.Error())
 	}
 }
 
@@ -116,18 +150,16 @@ func subjectParser(sub Subject, topicRes chan<- Topic) {
 				Link: href,
 			}
 
-			fmt.Println(topic)
-
 			topicRes <- topic
 		})
 	})
 
 	c.OnScraped(func(res *colly.Response) {
-		fmt.Println("Scrapped subject", sub.Link)
+		//fmt.Println("Scrapped topic", sub.Link)
 	})
 
 	if err := c.Visit(sub.Link); err != nil {
-		fmt.Println("Couldn't visit subject site", err.Error())
+		//fmt.Println("Couldn't visit subject site", err.Error())
 	}
 }
 
@@ -200,10 +232,10 @@ func topicParser(topic Topic, mcqRes chan<- []MCQ) {
 	})
 
 	c.OnHTML("title", func(element *colly.HTMLElement) {
-		fmt.Println("Scrapped MCQ", element.Text)
+		//fmt.Println("Scrapped MCQ", element.Text)
 	})
 
 	if err := c.Visit(topic.Link); err != nil {
-		fmt.Println("Couldn't visit topic site", err.Error())
+		//fmt.Println("Couldn't visit topic site", err.Error())
 	}
 }
