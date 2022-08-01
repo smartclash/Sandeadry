@@ -29,7 +29,27 @@ type MCQWrapper struct {
 
 func main() {
 	geziyor.NewGeziyor(&geziyor.Options{
-		StartURLs:          []string{"https://www.sanfoundry.com/computer-science-questions-answers/"},
+		StartURLs: []string{
+			"https://www.sanfoundry.com/programming-questions-answers/",
+			"https://www.sanfoundry.com/computer-science-questions-answers/",
+			"https://www.sanfoundry.com/information-technology-questions-answers/",
+			"https://www.sanfoundry.com/information-science-questions-answers/",
+			"https://www.sanfoundry.com/electronics-communication-engineering-questions-answers/",
+			"https://www.sanfoundry.com/electrical-electronics-engineering-questions-answers/",
+			"https://www.sanfoundry.com/electrical-engineering-questions-answers/",
+			"https://www.sanfoundry.com/civil-engineering-questions-answers/",
+			"https://www.sanfoundry.com/mechanical-engineering-questions-answers/",
+			"https://www.sanfoundry.com/chemical-engineering-questions-answers/",
+			"https://www.sanfoundry.com/metallurgical-engineering-questions-answers/",
+			"https://www.sanfoundry.com/mining-engineering-questions-answers/",
+			"https://www.sanfoundry.com/instrumentation-engineering-questions-answers/",
+			"https://www.sanfoundry.com/aerospace-engineering-questions-answers/",
+			"https://www.sanfoundry.com/aeronautical-engineering-questions-answers/",
+			"https://www.sanfoundry.com/biotechnology-questions-answers/",
+			"https://www.sanfoundry.com/agricultural-engineering-questions-answers/",
+			"https://www.sanfoundry.com/marine-engineering-questions-answers/",
+			"https://www.sanfoundry.com/mechatronics-engineering-questions-answers/",
+		},
 		ParseFunc:          subjectParse,
 		Exporters:          []export.Exporter{&export.JSON{}},
 		ConcurrentRequests: 100,
@@ -41,6 +61,12 @@ func stringCleaner(text string) string {
 		" MCQs with Answers - Sanfoundry",
 		" MCQs - Sanfoundry",
 		"50000+ ",
+		"10000+ ",
+		" Questions and Answers - Sanfoundry",
+		" MCQ Questions and Answers - Sanfoundry",
+		" MCQ Questions with Answers - Sanfoundry",
+		" MCQ (Multiple Choice Questions) - Sanfoundry",
+		" MCQ with Answers - Sanfoundry",
 	}
 
 	for _, replacer := range replacers {
