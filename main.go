@@ -16,6 +16,7 @@ func main() {
 		ParseFunc:          subjectParse,
 		Exporters:          []export.Exporter{&export.JSON{}},
 		ConcurrentRequests: 100,
+		LogDisabled:        true,
 	}).Start()
 }
 
@@ -69,9 +70,19 @@ func topicParse(g *geziyor.Geziyor, r *client.Response) {
 }
 
 type MCQ struct {
+	Question    string
+	OptionOne   string
+	OptionTwo   string
+	OptionThree string
+	OptionFour  string
+	Answer      string
+	Explanation string
+}
+
+type MCQWrapper struct {
 	Subject string
 	Topic   string
-	Result  []interface{}
+	MCQs    []MCQ
 }
 
 func mcqParse(g *geziyor.Geziyor, r *client.Response) {
@@ -91,9 +102,14 @@ func mcqParse(g *geziyor.Geziyor, r *client.Response) {
 		answers = append(answers, finalAnswer)
 	})
 
-	g.Exports <- MCQ{
-		Subject: fmt.Sprint(r.Request.Meta["subject"]),
-		Topic:   fmt.Sprint(r.Request.Meta["topic"]),
-		Result:  answers,
-	}
+	dom.Find("p").Each(func(i int, s *goquery.Selection) {
+		if i == 0 {
+			return
+		}
+	})
+
+	//g.Exports <- MCQWrapper{
+	//	Subject: fmt.Sprint(r.Request.Meta["subject"]),
+	//	Topic:   fmt.Sprint(r.Request.Meta["topic"]),
+	//}
 }
