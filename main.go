@@ -6,9 +6,26 @@ import (
 	"github.com/geziyor/geziyor"
 	"github.com/geziyor/geziyor/client"
 	"github.com/geziyor/geziyor/export"
+	"github.com/samber/lo"
 	"net/url"
 	"strings"
 )
+
+type MCQ struct {
+	Question    string
+	OptionOne   string
+	OptionTwo   string
+	OptionThree string
+	OptionFour  string
+	Answer      string
+	Explanation string
+}
+
+type MCQWrapper struct {
+	Subject string
+	Topic   string
+	MCQs    []MCQ
+}
 
 func main() {
 	geziyor.NewGeziyor(&geziyor.Options{
@@ -16,7 +33,6 @@ func main() {
 		ParseFunc:          subjectParse,
 		Exporters:          []export.Exporter{&export.JSON{}},
 		ConcurrentRequests: 100,
-		LogDisabled:        true,
 	}).Start()
 }
 
@@ -69,47 +85,62 @@ func topicParse(g *geziyor.Geziyor, r *client.Response) {
 	})
 }
 
-type MCQ struct {
-	Question    string
-	OptionOne   string
-	OptionTwo   string
-	OptionThree string
-	OptionFour  string
-	Answer      string
-	Explanation string
-}
-
-type MCQWrapper struct {
-	Subject string
-	Topic   string
-	MCQs    []MCQ
-}
-
 func mcqParse(g *geziyor.Geziyor, r *client.Response) {
-	var answers []interface{}
+	var MCQs []MCQ
 	dom := r.HTMLDoc.Find("div.entry-content")
 
-	dom.Find("div.collapseomatic_content").Each(func(i int, s *goquery.Selection) {
-		answerRaw := strings.Split(s.Text(), "\n")
-		answer := strings.ReplaceAll(answerRaw[0], "Answer: ", "")
-		explanation := strings.ReplaceAll(answerRaw[1], "Explanation: ", "")
-
-		finalAnswer := map[string]string{
-			"Answer":      answer,
-			"Explanation": explanation,
-		}
-
-		answers = append(answers, finalAnswer)
-	})
-
 	dom.Find("p").Each(func(i int, s *goquery.Selection) {
-		if i == 0 {
+		if !strings.Contains(s.Text(), "View Answer") {
 			return
 		}
+
+		theText := strings.Split(strings.ReplaceAll(s.Text(), "View Answer", ""), "\n")
+		if len(theText) <= 5 {
+			return
+		}
+
+		theText = lo.Reject(theText, func(line string, _ int) bool {
+			return line == ""
+		})
+
+		rawResult := s.Next().Text()
+		if !strings.Contains(rawResult, "Answer") {
+			return
+		}
+
+		splitResults := strings.Split(rawResult, "\n")
+		answer := strings.ReplaceAll(splitResults[0], "Answer: ", "")
+		explanation := strings.ReplaceAll(splitResults[1], "Explanation: ", "")
+
+		var options []string
+		var question string
+		starters := []string{"a)", "b)", "c)", "d)"}
+		for _, line := range theText {
+			if len(line) <= 1 {
+				return
+			}
+
+			if lo.Contains(starters, line[0:2]) {
+				options = append(options, line)
+			} else {
+				question += "\n" + line
+			}
+		}
+
+		MCQs = append(MCQs, MCQ{
+			Question:    question,
+			OptionOne:   options[0],
+			OptionTwo:   options[1],
+			OptionThree: options[2],
+			OptionFour:  options[3],
+			Answer:      answer,
+			Explanation: explanation,
+		})
 	})
 
-	//g.Exports <- MCQWrapper{
-	//	Subject: fmt.Sprint(r.Request.Meta["subject"]),
-	//	Topic:   fmt.Sprint(r.Request.Meta["topic"]),
-	//}
+	g.Exports <- MCQWrapper{
+		Subject: fmt.Sprint(r.Request.Meta["subject"]),
+		Topic:   fmt.Sprint(r.Request.Meta["topic"]),
+		MCQs:    MCQs,
+	}
 }

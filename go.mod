@@ -2,10 +2,13 @@ module github.com/smartclash/Sandeadry
 
 go 1.18
 
-require github.com/geziyor/geziyor v0.0.0-20220429000531-738852f9321d
+require (
+	github.com/PuerkitoBio/goquery v1.8.0
+	github.com/geziyor/geziyor v0.0.0-20220429000531-738852f9321d
+	github.com/samber/lo v1.27.0
+)
 
 require (
-	github.com/PuerkitoBio/goquery v1.8.0 // indirect
 	github.com/VividCortex/gohistogram v1.0.0 // indirect
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -26,6 +29,7 @@ require (
 	github.com/prometheus/common v0.34.0 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/temoto/robotstxt v1.1.2 // indirect
+	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
 	golang.org/x/sys v0.0.0-20220422013727-9388b58f7150 // indirect
 	golang.org/x/text v0.3.7 // indirect
