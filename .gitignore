@@ -1,10 +1,4 @@
-node_modules/
-dist/
-*.html
-datas/
 .idea/
-sanfoundry_cache/
 *.sqlite
-.env
 Sandeadry
 out.json
