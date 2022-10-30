@@ -9,6 +9,7 @@ import (
 	"github.com/samber/lo"
 	"net/url"
 	"strings"
+	"sync"
 )
 
 type MCQ struct {
@@ -26,6 +27,8 @@ type MCQWrapper struct {
 	Topic   string
 	MCQs    []MCQ
 }
+
+var wg sync.WaitGroup
 
 func main() {
 	geziyor.NewGeziyor(&geziyor.Options{
@@ -54,6 +57,8 @@ func main() {
 		Exporters:          []export.Exporter{&export.JSON{}},
 		ConcurrentRequests: 100,
 	}).Start()
+
+	wg.Wait()
 }
 
 func stringCleaner(text string) string {
@@ -94,7 +99,8 @@ func subjectParse(g *geziyor.Geziyor, r *client.Response) {
 		req, _ := client.NewRequest("GET", href, nil)
 		req.Meta["subject"] = title
 
-		g.Do(req, topicParse)
+		wg.Add(1)
+		go g.Do(req, topicParse)
 	})
 }
 
@@ -107,8 +113,11 @@ func topicParse(g *geziyor.Geziyor, r *client.Response) {
 		req.Meta["subject"] = subject
 		req.Meta["topic"] = s.Text()
 
-		g.Do(req, mcqParse)
+		wg.Add(1)
+		go g.Do(req, mcqParse)
 	})
+
+	wg.Done()
 }
 
 func mcqParse(g *geziyor.Geziyor, r *client.Response) {
@@ -169,4 +178,5 @@ func mcqParse(g *geziyor.Geziyor, r *client.Response) {
 		Topic:   fmt.Sprint(r.Request.Meta["topic"]),
 		MCQs:    MCQs,
 	}
+	wg.Done()
 }
